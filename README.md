@@ -7,6 +7,8 @@
 
 ---
 
+Single-resource Terraform atom that attaches a JSON policy document to an existing S3 bucket.
+
 ## Purpose
 
 Attaches an IAM policy document to an S3 bucket, controlling who can access the bucket and what actions they can perform. This atom receives the bucket ID from the bucket atom and applies the policy independently.
@@ -45,7 +47,7 @@ Attaches an IAM policy document to an S3 bucket, controlling who can access the 
 
 ```hcl
 module "bucket_policy" {
-  source = "github.com/PlatformStackPulse/tf-atom-s3-bucket-policy-aws?ref=v1.0.0"
+  source = "git::https://github.com/PlatformStackPulse/tf-atom-s3-bucket-policy-aws.git?ref=v1.0.0"
 
   context   = module.this.context
   bucket_id = module.bucket.bucket_id
@@ -131,3 +133,20 @@ module "bucket_policy" {
 | <a name="output_bucket_id"></a> [bucket\_id](#output\_bucket\_id) | ID of the bucket the policy is attached to |
 | <a name="output_enabled"></a> [enabled](#output\_enabled) | Whether the module is enabled. |
 <!-- END_TF_DOCS -->
+
+## Tests
+
+Unit tests live in `tests/unit/` and run against a mocked AWS provider, so they need
+no AWS credentials and create no real resources. They assert on plan-known values
+(the tf-label `id`, input pass-throughs, and resource counts) for both the enabled
+and disabled paths.
+
+```bash
+terraform init -backend=false
+terraform test -test-directory=tests/unit
+# or
+make test-unit
+```
+
+Integration tests (if present under `tests/integration/`) require real AWS credentials
+and are run with `make test-integration` / `terraform test -test-directory=tests/integration`.
